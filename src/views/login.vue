@@ -14,7 +14,10 @@
                     <Input type="password" v-model="formItem.password"></Input>
                 </Form-item>
                 <Form-item>
-                    <Button html-type="submit" type="primary" @click="handleSubmit('formItem')">登录</Button>
+                    <Button type="primary" html-type="submit" :loading="loading" @click="handleSubmit('formItem')">
+                        <span v-if="!loading">登录</span>
+                        <span v-else>登录中...</span>
+                    </Button>
                 </Form-item>
             </Form>
         </Card>
@@ -27,6 +30,7 @@
     export default {
         data () {
             return {
+                loading: false,
                 formItem: {
                     username: '',
                     password: ''
@@ -47,19 +51,19 @@
                 this.$refs[name].validate((valid) => {
                     if (valid) {
                         this.login()
-                    } else {
-                        this.$Message.error('表单验证失败!');
                     }
                 })
             },
 
             login() {
                 var $this = this;
+                this.loading = true;
                 this.$http.post(window.apiDomain+ '/api/login', this.formItem)
                     .then((response) => {
                         let ret = response.body;
                         if(ret.code !== 1000){
                             this.$Message.error(ret.message);
+                            this.loading = false;
                             return;
                         }
                         var token = ret.data.token;
@@ -68,19 +72,22 @@
                         //获取用户基本信息
                         var headers = {Authorization: 'Bearer ' + token}
                         this.$http.get(window.apiDomain+ '/api/users/show',{headers:headers}).then((response) => {
-                            let ret = response.body;
-                            if(ret.code === 1000){
-                                //设置登录状态
-                                Auth.login(token, ret.data)
-                                //提示登录信息
-                                this.$Message.success({
-                                    content:ret.message,
-                                    onClose:function(){
-                                        $this.$router.push({ path: "/" });
-                                    }
-                                 });
+                            if(response.body.code !== 1000){
+                                this.$Message.error(response.body.message);
+                                this.loading = false;
+                                return;
                             }
+                            //设置登录状态
+                            Auth.login(token, response.body.data)
+                            //提示登录信息
+                            this.$Message.success({
+                                content:ret.message,
+                                onClose:function(){
+                                    $this.$router.push({ path: "/" });
+                                }
+                             });
                         }, response => {
+
                             console.log(response);
                         });
                     }, response => {

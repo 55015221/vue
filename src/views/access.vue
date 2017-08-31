@@ -34,7 +34,7 @@
                 <Button type="primary" icon="ios-search" @click="search('formSearch')">搜索</Button>
             </Form>
         </Card>
-        <Table :columns="columns" :data="data"></Table>
+        <Table :columns="columns" :data="gridData"></Table>
         <Page class="pagination" :total="total" :current="current" :page-size="pageSize" @on-change="pageChange" show-elevator show-total></Page>
     </Row>
 </template>
@@ -141,26 +141,31 @@
                 total: 0,
                 current: 1,
                 pageSize: 15,
-                data: [],
+                gridData: [],
             }
         },
-        mounted: function () {
+        created: function () {
             this.getData()
+        },
+
+        mounted: function () {
+
+
         },
         methods: {
             getData (search) {
+                var vm = this;
                 this.current = 1;
                 this.$http.get(window.apiDomain+ '/api/access_records?page='+this.current, {params: search}).then(response => {
-                     //console.log(response);
                      let ret = response.body
-                     let accessRecords = ret.data
-
-                     this.total = accessRecords.total
-                     this.current = accessRecords.current_page
-                     this.data = accessRecords.data
+                     vm.gridData = ret.data.data
+                     vm.total = ret.data.total
+                     vm.current = ret.data.current_page
+                     //vm.$set('gridData', ret.data.data)
+                     //vm.$set('total', ret.data.total)
+                     //vm.$set('current', ret.data.current_page)
 
                 }, response => {
-                    console.log('error callback');
                     console.log(response);
                 });
             },

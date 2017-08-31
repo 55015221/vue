@@ -31,7 +31,7 @@
                 <Button type="primary" icon="ios-search" @click="search('formSearch')">搜索</Button>
             </Form>
         </Card>
-        <Table :columns="columns" :data="data"></Table>
+        <Table :columns="columns" :data="gridData"></Table>
         <Page class="pagination" :total="total" :current="current" :page-size="pageSize" @on-change="pageChange" show-elevator show-total></Page>
     </Row>
 </template>
@@ -122,11 +122,13 @@
                 total: 0,
                 current: 1,
                 pageSize: 15,
-                data: [],
+                gridData: [],
             }
         },
-        mounted: function () {
+        created: function () {
             this.getData()
+        },
+        mounted: function () {
         },
         methods: {
             getData (search) {
@@ -137,12 +139,9 @@
                         this.$Message.error(ret.message);
                      }
 
-                     let accessRecords = ret.data
-                     this.total = accessRecords.total
-                     this.current = accessRecords.current_page
-                     this.data = accessRecords.data
-
-                     console.log(accessRecords);
+                     this.total = ret.data.total
+                     this.current = ret.data.current_page
+                     this.gridData = ret.data.data
 
                 }, response => {
                     console.log('error callback');

@@ -66,7 +66,7 @@
                   <div class="layout-content">
                       <!-- 内容主体 -->
                       <div class="layout-content-main" v-if="show">
-                          <transition name="" mode="out-in">
+                          <transition name="fade" mode="out-in">
                               <router-view></router-view>
                           </transition>
                       </div>

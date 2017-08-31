@@ -50,6 +50,8 @@ router.afterEach((to, from, next) => {
 // Vue.http.options.emulateHTTP = true;
 // Vue.http.options.emulateJSON = true;
 Vue.http.interceptors.push(function(request, next) {
+    // 通过控制 组件的`v-show`值显示loading组件
+    // loading.show = true;
     //
     // modify method
     // request.method = 'POST';
@@ -62,7 +64,7 @@ Vue.http.interceptors.push(function(request, next) {
     request.headers.set('Authorization', 'Bearer ' + token);
     // continue to next interceptor
     next(function(response) {
-
+        // loading.show = false;
         // modify response
         if(4001 === response.body.code){
             Auth.logout()
